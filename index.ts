@@ -42,6 +42,7 @@ function transformUserForSheet(user: any) {
 async function main() {
     console.log('Starting two-way sync process...');
     console.log(`Looking for sheet tab: "${SHEET_TITLE}"`);
+    console.log(`MongoDB URI: ${process.env.MONGO_URI?.substring(0, 30)}...`);
     
     await connectDB();
     await initSheet();
@@ -71,15 +72,34 @@ async function main() {
 
     // 1. Push new users from DB to Sheet
     const allDbUsers = await JoinRequest.find({}).lean();
+    console.log(`Total users in DB: ${allDbUsers.length}`);
+    console.log(`Users in sheet: ${rows.length}`);
+    
+    // Debug: Show first few users from DB
+    if (allDbUsers.length > 0) {
+        console.log('Sample DB users:', allDbUsers.slice(0, 3).map((u: any) => ({
+            telegramId: u.telegramId,
+            username: u.username,
+            status: u.status
+        })));
+    }
+    
     const newDbUsers = allDbUsers.filter((user: any) => !sheetTelegramIds.has(user.telegramId));
 
     if (newDbUsers.length > 0) {
         console.log(`Found ${newDbUsers.length} new users in DB to add to the sheet.`);
+        console.log('New users to add:', newDbUsers.map((u: any) => ({
+            telegramId: u.telegramId,
+            username: u.username
+        })));
         const newRows = newDbUsers.map(transformUserForSheet);
         await sheet.addRows(newRows);
         console.log('Successfully added new users to the sheet.');
     } else {
         console.log('No new users found in DB to push to the sheet.');
+        if (sheetTelegramIds.size > 0) {
+            console.log('Sheet already contains these Telegram IDs:', Array.from(sheetTelegramIds).slice(0, 5));
+        }
     }
 
     // 2. Pull updates from Sheet to DB and notify
