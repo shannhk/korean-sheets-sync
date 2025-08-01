@@ -54,11 +54,16 @@ async function main() {
     }
 
     // Check if headers exist, if not, add them
-    await sheet.loadHeaderRow();
-    if (!sheet.headerValues || sheet.headerValues.length === 0) {
-        console.log('No headers found. Adding headers...');
-        await sheet.setHeaderRow(['telegramId', 'username', 'xLink', 'status', 'submittedAt', 'processed']);
-        console.log('Headers added successfully.');
+    try {
+        await sheet.loadHeaderRow();
+    } catch (error: any) {
+        if (error.message.includes('No values in the header row')) {
+            console.log('No headers found. Adding headers...');
+            await sheet.setHeaderRow(['telegramId', 'username', 'xLink', 'status', 'submittedAt', 'processed']);
+            console.log('Headers added successfully.');
+        } else {
+            throw error;
+        }
     }
 
     const rows = await sheet.getRows();
