@@ -125,8 +125,16 @@ async function processSheetUpdate(row: GoogleSpreadsheetRow<any>) {
 
         // Send Telegram Notification
         const message = newStatus === 'approved' ? getApprovalMessage(username) : getRejectionMessage(username);
-        await bot.telegram.sendMessage(telegramId, message);
-        console.log(`Sent ${newStatus} notification to ${username}.`);
+        try {
+            await bot.telegram.sendMessage(telegramId, message);
+            console.log(`Sent ${newStatus} notification to ${username}.`);
+        } catch (error: any) {
+            if (error.response?.description?.includes('chat not found')) {
+                console.error(`Cannot send message to ${username} (${telegramId}) - they haven't started a chat with the bot`);
+                throw new Error(`User hasn't started chat with bot`);
+            }
+            throw error;
+        }
 
         // Mark as processed in Sheet
         row.set('processed', new Date().toISOString());
