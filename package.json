@@ -7,10 +7,12 @@
     "start": "ts-node index.ts"
   },
   "dependencies": {
+    "@types/node": "^24.1.0",
     "dotenv": "^16.3.1",
     "google-auth-library": "^10.2.0",
     "google-spreadsheet": "^4.1.0",
-    "mongoose": "^8.0.0"
+    "mongoose": "^8.17.0",
+    "telegraf": "^4.16.3"
   },
   "devDependencies": {
     "ts-node": "^10.9.1",

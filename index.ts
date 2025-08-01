@@ -6,7 +6,7 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 import { connectDB, disconnectDB } from './lib/db';
 import { initSheet, getSheetByTitle } from './lib/sheets';
-import JoinRequest from '../src/models/joinRequest';
+import JoinRequest from './models/joinRequest';
 import { GoogleSpreadsheetRow } from 'google-spreadsheet';
 
 // --- CONFIGURATION ---
@@ -52,7 +52,7 @@ async function main() {
 
     // 1. Push new users from DB to Sheet
     const allDbUsers = await JoinRequest.find({}).lean();
-    const newDbUsers = allDbUsers.filter(user => !sheetTelegramIds.has(user.telegramId));
+    const newDbUsers = allDbUsers.filter((user: any) => !sheetTelegramIds.has(user.telegramId));
 
     if (newDbUsers.length > 0) {
         console.log(`Found ${newDbUsers.length} new users in DB to add to the sheet.`);
