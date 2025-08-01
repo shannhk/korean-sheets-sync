@@ -41,11 +41,25 @@ function transformUserForSheet(user: any) {
 // --- MAIN SYNC LOGIC ---
 async function main() {
     console.log('Starting two-way sync process...');
+    console.log(`Looking for sheet tab: "${SHEET_TITLE}"`);
+    
     await connectDB();
     await initSheet();
 
     const sheet = await getSheetByTitle(SHEET_TITLE);
-    if (!sheet) throw new Error(`Sheet "${SHEET_TITLE}" not found.`);
+    if (!sheet) {
+        console.error(`Sheet tab "${SHEET_TITLE}" not found!`);
+        console.error('Please ensure you have a tab named exactly "Yap Circle Korea" in your Google Sheet.');
+        throw new Error(`Sheet "${SHEET_TITLE}" not found.`);
+    }
+
+    // Check if headers exist, if not, add them
+    await sheet.loadHeaderRow();
+    if (!sheet.headerValues || sheet.headerValues.length === 0) {
+        console.log('No headers found. Adding headers...');
+        await sheet.setHeaderRow(['telegramId', 'username', 'xLink', 'status', 'submittedAt', 'processed']);
+        console.log('Headers added successfully.');
+    }
 
     const rows = await sheet.getRows();
     const sheetTelegramIds = new Set(rows.map(row => row.get('telegramId')));
