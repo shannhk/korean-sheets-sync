@@ -19,7 +19,7 @@ export async function initSheet() {
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
 
-  doc = new GoogleSpreadsheet(SHEET_ID, serviceAccountAuth);
+  doc = new GoogleSpreadsheet(SHEET_ID!, serviceAccountAuth);
   await doc.loadInfo();
   console.log(`Connected to Google Sheet: ${doc.title}`);
 }
