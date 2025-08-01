@@ -2,7 +2,13 @@ import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
 import path from 'path';
 
-const credentials = require(path.join(__dirname, '../google-credentials.json'));
+// Try to load from root first (Render secret file location), then from relative path
+let credentials;
+try {
+  credentials = require(path.join(process.cwd(), 'google-credentials.json'));
+} catch (error) {
+  credentials = require(path.join(__dirname, '../google-credentials.json'));
+}
 
 const SHEET_ID = process.env.GOOGLE_SPREADSHEET_ID || process.env.GOOGLE_SHEET_ID;
 
