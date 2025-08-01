@@ -3,32 +3,16 @@ import { JWT } from 'google-auth-library';
 import path from 'path';
 import fs from 'fs';
 
-// Debug: Log current working directory and __dirname
-console.log('Current working directory:', process.cwd());
-console.log('__dirname:', __dirname);
-
 // Try multiple paths for the credentials file
 const possiblePaths = [
   path.join(process.cwd(), 'google-credentials.json'), // Render secret file location
   path.join(__dirname, '../google-credentials.json'),   // Local development
-  '/etc/secrets/google-credentials.json',               // Alternative Render location
-  'google-credentials.json',                            // Direct relative path
 ];
 
 let credentials;
 let credentialsPath = '';
 
-// Debug: List files in current directory
-console.log('Files in current directory:');
-try {
-  const files = fs.readdirSync(process.cwd());
-  files.forEach(file => console.log(' -', file));
-} catch (err) {
-  console.error('Error listing files:', err);
-}
-
 for (const testPath of possiblePaths) {
-  console.log(`Checking path: ${testPath} - Exists: ${fs.existsSync(testPath)}`);
   if (fs.existsSync(testPath)) {
     credentialsPath = testPath;
     break;
@@ -36,11 +20,9 @@ for (const testPath of possiblePaths) {
 }
 
 if (!credentialsPath) {
-  console.error('Checked paths:', possiblePaths);
-  throw new Error('google-credentials.json not found in any expected location');
+  throw new Error('google-credentials.json not found. Please ensure it exists in the project root.');
 }
 
-console.log('Found credentials at:', credentialsPath);
 credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
 
 const SHEET_ID = process.env.GOOGLE_SPREADSHEET_ID || process.env.GOOGLE_SHEET_ID;
